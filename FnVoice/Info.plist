@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>FnVoice</string>
+    <key>CFBundleDisplayName</key>
+    <string>FnVoice</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.mhmdessb.fnvoice</string>
+    <key>CFBundleVersion</key>
+    <string>2</string>
+    <key>CFBundleShortVersionString</key>
+    <string>2.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleIconFile</key>
+    <string>AppIcon</string>
+    <key>CFBundleExecutable</key>
+    <string>FnVoice</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>14.0</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>FnVoice records your voice to turn it into text.</string>
+    <key>NSAppleEventsUsageDescription</key>
+    <string>FnVoice sends keyboard commands to paste the transcribed text.</string>
+</dict>
+</plist>

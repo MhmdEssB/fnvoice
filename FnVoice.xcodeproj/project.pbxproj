@@ -1,0 +1,425 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AAA000001 /* FnVoiceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA000010 /* FnVoiceApp.swift */; };
+		AAA000002 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA000011 /* AppState.swift */; };
+		AAA000003 /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA000012 /* MenuBarView.swift */; };
+		AAA000004 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA000013 /* SettingsView.swift */; };
+		AAA000005 /* AudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA000014 /* AudioRecorder.swift */; };
+		AAA000006 /* KeyboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA000015 /* KeyboardService.swift */; };
+		AAA000007 /* TranscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA000016 /* TranscriptionService.swift */; };
+		AAA000008 /* TextInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA000017 /* TextInjector.swift */; };
+		AAA000009 /* KeychainHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA000018 /* KeychainHelper.swift */; };
+		AAA00000A /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = AAA000019 /* Constants.swift */; };
+		BBB000001 /* SoundService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB000010 /* SoundService.swift */; };
+		BBB000002 /* HistoryService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB000011 /* HistoryService.swift */; };
+		BBB000003 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBB000012 /* HistoryView.swift */; };
+		CCC000007 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = CCC000017 /* AppIcon.icns */; };
+		CCC000006 /* VocabularyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC000016 /* VocabularyView.swift */; };
+		CCC000005 /* VocabularyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC000015 /* VocabularyService.swift */; };
+		CCC000004 /* ModelCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC000014 /* ModelCatalog.swift */; };
+		CCC000003 /* WindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC000013 /* WindowManager.swift */; };
+		CCC000002 /* SeedVocabulary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC000012 /* SeedVocabulary.swift */; };
+		CCC000001 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC000011 /* AppSettings.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		AAA000010 /* FnVoiceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FnVoiceApp.swift; sourceTree = "<group>"; };
+		AAA000011 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		AAA000012 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		AAA000013 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		AAA000014 /* AudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorder.swift; sourceTree = "<group>"; };
+		AAA000015 /* KeyboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardService.swift; sourceTree = "<group>"; };
+		AAA000016 /* TranscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranscriptionService.swift; sourceTree = "<group>"; };
+		AAA000017 /* TextInjector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextInjector.swift; sourceTree = "<group>"; };
+		AAA000018 /* KeychainHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainHelper.swift; sourceTree = "<group>"; };
+		AAA000019 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		AAA00001A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CCC000017 /* AppIcon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = AppIcon.icns; path = Resources/AppIcon.icns; sourceTree = "<group>"; };
+		AAA00001B /* FnVoice.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = FnVoice.entitlements; sourceTree = "<group>"; };
+		AAA00001C /* FnVoice.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FnVoice.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BBB000010 /* SoundService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundService.swift; sourceTree = "<group>"; };
+		BBB000011 /* HistoryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryService.swift; sourceTree = "<group>"; };
+		BBB000012 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		CCC000016 /* VocabularyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyView.swift; sourceTree = "<group>"; };
+		CCC000015 /* VocabularyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyService.swift; sourceTree = "<group>"; };
+		CCC000014 /* ModelCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelCatalog.swift; sourceTree = "<group>"; };
+		CCC000013 /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
+		CCC000012 /* SeedVocabulary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedVocabulary.swift; sourceTree = "<group>"; };
+		CCC000011 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AAA00001D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		AAA00001E /* FnVoice */ = {
+			isa = PBXGroup;
+			children = (
+				AAA000010 /* FnVoiceApp.swift */,
+				AAA000011 /* AppState.swift */,
+				AAA00001F /* Views */,
+				AAA000020 /* Services */,
+				AAA000021 /* Helpers */,
+				AAA00001A /* Info.plist */,
+				CCC000017 /* AppIcon.icns */,
+				AAA00001B /* FnVoice.entitlements */,
+			);
+			path = FnVoice;
+			sourceTree = "<group>";
+		};
+		AAA00001F /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				AAA000012 /* MenuBarView.swift */,
+				AAA000013 /* SettingsView.swift */,
+				BBB000012 /* HistoryView.swift */,
+				CCC000016 /* VocabularyView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		AAA000020 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AAA000014 /* AudioRecorder.swift */,
+				AAA000015 /* KeyboardService.swift */,
+				AAA000016 /* TranscriptionService.swift */,
+				AAA000017 /* TextInjector.swift */,
+				BBB000010 /* SoundService.swift */,
+				BBB000011 /* HistoryService.swift */,
+				CCC000015 /* VocabularyService.swift */,
+				CCC000014 /* ModelCatalog.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		AAA000021 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				AAA000018 /* KeychainHelper.swift */,
+				AAA000019 /* Constants.swift */,
+				CCC000013 /* WindowManager.swift */,
+				CCC000012 /* SeedVocabulary.swift */,
+				CCC000011 /* AppSettings.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		AAA000022 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AAA00001C /* FnVoice.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		AAA000023 /* Root */ = {
+			isa = PBXGroup;
+			children = (
+				AAA00001E /* FnVoice */,
+				AAA000022 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AAA000024 /* FnVoice */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AAA000025 /* Build configuration list for PBXNativeTarget "FnVoice" */;
+			buildPhases = (
+				AAA000026 /* Sources */,
+				AAA00001D /* Frameworks */,
+				AAA000027 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = FnVoice;
+			productName = FnVoice;
+			productReference = AAA00001C /* FnVoice.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		AAA000028 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					AAA000024 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = AAA000029 /* Build configuration list for PBXProject "FnVoice" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = fr;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				fr,
+				Base,
+			);
+			mainGroup = AAA000023 /* Root */;
+			productRefGroup = AAA000022 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				AAA000024 /* FnVoice */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AAA000027 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CCC000007 /* AppIcon.icns in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AAA000026 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AAA000001 /* FnVoiceApp.swift in Sources */,
+				AAA000002 /* AppState.swift in Sources */,
+				AAA000003 /* MenuBarView.swift in Sources */,
+				AAA000004 /* SettingsView.swift in Sources */,
+				AAA000005 /* AudioRecorder.swift in Sources */,
+				AAA000006 /* KeyboardService.swift in Sources */,
+				AAA000007 /* TranscriptionService.swift in Sources */,
+				AAA000008 /* TextInjector.swift in Sources */,
+				AAA000009 /* KeychainHelper.swift in Sources */,
+				AAA00000A /* Constants.swift in Sources */,
+				BBB000001 /* SoundService.swift in Sources */,
+				BBB000002 /* HistoryService.swift in Sources */,
+				BBB000003 /* HistoryView.swift in Sources */,
+				CCC000006 /* VocabularyView.swift in Sources */,
+				CCC000005 /* VocabularyService.swift in Sources */,
+				CCC000004 /* ModelCatalog.swift in Sources */,
+				CCC000003 /* WindowManager.swift in Sources */,
+				CCC000002 /* SeedVocabulary.swift in Sources */,
+				CCC000001 /* AppSettings.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AAA00002B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AAA00002C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+			};
+			name = Release;
+		};
+		AAA00002D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FnVoice/FnVoice.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FnVoice/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FnVoice;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mhmdessb.fnvoice;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AAA00002E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = FnVoice/FnVoice.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = FnVoice/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = FnVoice;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.mhmdessb.fnvoice;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AAA000025 /* Build configuration list for PBXNativeTarget "FnVoice" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAA00002D /* Debug */,
+				AAA00002E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AAA000029 /* Build configuration list for PBXProject "FnVoice" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AAA00002B /* Debug */,
+				AAA00002C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = AAA000028 /* Project object */;
+}

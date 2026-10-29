@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xccheckout
+*.xcscmblueprint
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/
+
+# Claude Code
+.claude/
+
+# CocoaPods (si utilisé plus tard)
+Pods/
+
+# Carthage (si utilisé plus tard)
+Carthage/Build/
+
+# Fichiers temporaires
+*.swp
+*.swo
+*~
+

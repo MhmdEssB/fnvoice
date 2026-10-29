@@ -1,0 +1,2 @@
+"NSMicrophoneUsageDescription" = "FnVoice records your voice to turn it into text.";
+"NSAppleEventsUsageDescription" = "FnVoice sends keyboard commands to paste the transcribed text.";
