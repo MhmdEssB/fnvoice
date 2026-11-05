@@ -8,4 +8,7 @@ enum SeedVocabulary {
     static let version = 1
 
     static let terms: [String] = []
+
+    /// Domain of each starting term (lowercase key), to guide the review. Empty while `terms` is.
+    static let domains: [String: VocabularyDomain] = [:]
 }

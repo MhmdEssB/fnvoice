@@ -24,7 +24,7 @@ Ce dépôt est un fork amélioré de [Paseru/whisper](https://github.com/Paseru/
 
 ### Prérequis
 
-- macOS 14 (Sonoma) ou plus récent
+- macOS 14 (Sonoma) ou plus récent (macOS 14.2 ou plus récent pour enregistrer une réunion avec le son de l'ordinateur)
 - Une clé API OpenRouter ([en créer une ici](https://openrouter.ai/keys))
 - Pour compiler seulement : les outils en ligne de commande d'Apple
 
@@ -57,6 +57,7 @@ Ensuite :
 5. **Accorde les permissions**
    - **Microphone** : pour enregistrer ta voix
    - **Accessibilité** : pour coller le texte automatiquement
+   - **Enregistrement audio du système** : seulement si tu veux enregistrer des réunions
 
 ## Lancer FnVoice au démarrage du Mac
 
@@ -76,16 +77,31 @@ Maintenant FnVoice sera toujours prêt à t'écouter dès que tu démarres ton M
 Maintiens **Fn**, parle, relâche. Le texte apparaît. Simple.
 
 ### Choix du modèle
-Dans les réglages, choisis le modèle de transcription. La liste et les tarifs viennent d'OpenRouter et se mettent à jour tout seuls. Tu peux aussi choisir la langue parlée et n'accepter que des fournisseurs qui ne conservent pas les données.
+Dans les réglages, choisis le modèle de transcription. La liste et les tarifs viennent d'OpenRouter et se mettent à jour tout seuls. Tu peux aussi choisir la langue parlée.
+
+Les modèles compatibles avec la zéro rétention sont listés en premier. Les autres sont en bas de la liste, marqués « (incompatible) » : si tu en choisis un, OpenRouter refusera tes dictées (voir plus bas).
 
 Les dictées trop longues pour un modèle (2 minutes pour Universal-3.5 Pro) sont découpées automatiquement.
 
 ### Vocabulaire qui apprend
-FnVoice transmet au modèle une liste de termes à reconnaître : les tiens, appris au fil du temps.
-
 - Un sigle ou un mot technique dicté deux fois est ajouté tout seul
 - Dans l'historique, le crayon permet de corriger une dictée : les mots corrigés sont retenus, et l'erreur est remplacée automatiquement les fois suivantes (« N-A-S-A » devient « NASA »)
-- Le menu "Vocabulaire" permet d'ajouter ou de supprimer des termes et des corrections
+- Le menu « Vocabulaire » permet d'ajouter ou de supprimer des termes et des corrections
+
+### Relecture par ton vocabulaire
+Les modèles de transcription d'OpenRouter n'acceptent pas de liste de mots. FnVoice ajoute donc une étape après la transcription : un petit modèle, Claude Haiku via OpenRouter (GPT-4.1 mini en secours), relit chaque dictée avec ton glossaire, rangé par domaine (sciences, informatique, finance, droit, marques, noms de personnes, lieux…), ainsi que les dictées récentes pour le contexte.
+
+Il ne remplace un mot que par un terme du glossaire qui s'en rapproche à l'oreille. Un contrôle de sécurité refuse tout autre changement : dans ce cas, seules les corrections locales sont gardées.
+
+Cette relecture ajoute environ une seconde. Tu peux la désactiver avec « Corriger les transcriptions avec mon vocabulaire » dans les réglages. Elle coûte environ 0,0003 $ par dictée.
+
+### Enregistrer une réunion
+Le menu « Réunion » enregistre en même temps ton micro et le son de l'ordinateur (les autres participants d'un appel). macOS demande alors l'autorisation « Enregistrement audio du système ». Cette fonction demande macOS 14.2 ou plus récent.
+
+L'audio est coupé en morceaux d'environ 90 secondes, à un silence, et quatre morceaux sont transcrits à la fois. Le résultat est un fichier texte dans Documents › FnVoice Meetings, avec un résumé en tête si tu l'actives dans les réglages. Si la transcription échoue, l'enregistrement est conservé et le menu propose de réessayer. Tu peux continuer à dicter pendant ce temps.
+
+### Zéro rétention, toujours active
+La transcription, la relecture et le résumé ne passent que par des fournisseurs qui n'enregistrent ni ta voix ni ton texte. Ce réglage est toujours actif et ne se désactive pas.
 
 ### Historique (24h)
 L'app garde un historique de tes transcriptions des dernières **24 heures**. Pratique pour retrouver un truc que t'as dicté plus tôt.
@@ -107,6 +123,7 @@ L'app a besoin de ces permissions pour fonctionner :
 |------------|-----------|
 | **Microphone** | Pour enregistrer ta voix |
 | **Accessibilité** | Pour coller le texte automatiquement dans n'importe quelle app |
+| **Enregistrement audio du système** | Pour enregistrer le son de l'ordinateur pendant une réunion (seulement si tu utilises cette fonction) |
 
 ## Clé API OpenRouter
 
@@ -118,7 +135,7 @@ Tu as besoin d'une clé API OpenRouter pour utiliser FnVoice :
 4. Copie la clé (elle commence par `sk-or-...`)
 5. Colle-la dans les réglages de FnVoice
 
-**Note** : L'utilisation est payante, mais la transcription coûte très peu (0,45 $ par heure d'audio pour Universal-3.5 Pro). Le tarif de chaque modèle est affiché dans les réglages.
+**Note** : L'utilisation est payante, mais la transcription coûte très peu (0,45 $ par heure d'audio pour Universal-3.5 Pro, et environ 0,0003 $ par dictée pour la relecture). Le tarif de chaque modèle est affiché dans les réglages.
 
 Ta clé API est stockée de façon sécurisée dans le Keychain de macOS (le même endroit où sont stockés tes mots de passe).
 
@@ -127,16 +144,18 @@ Ta clé API est stockée de façon sécurisée dans le Keychain de macOS (le mê
 1. Quand tu appuies sur **Fn**, l'app commence à enregistrer ton micro
 2. L'audio est enregistré en format WAV (16kHz, mono)
 3. Quand tu relâches **Fn**, l'audio est envoyé à OpenRouter, qui le transmet au modèle choisi
-4. Le texte transcrit revient en quelques secondes
+4. Le texte transcrit est relu avec ton vocabulaire, puis revient en quelques secondes
 5. L'app simule un Cmd+V pour coller le texte là où tu étais
 
 ## Confidentialité
 
-- **Audio** : Envoyé à OpenRouter et au fournisseur du modèle choisi, puis supprimé localement
+- **Audio** : Envoyé à OpenRouter et au fournisseur du modèle choisi, puis supprimé de ton Mac après la transcription. Pour une réunion, l'audio est supprimé dès que le fichier texte est écrit ; il n'est conservé qu'en cas d'échec, pour pouvoir réessayer
+- **Zéro rétention** : appliquée à chaque requête (transcription, relecture et résumé, Claude Haiku compris)
 - **Clé API** : Stockée dans le Keychain macOS (chiffré)
 - **Historique** : Stocké localement, supprimé après 24h
-- **Vocabulaire** : Stocké localement ; la liste des termes est jointe à chaque demande de transcription
-- **Aucune télémétrie** : L'app n'envoie aucune donnée ailleurs qu'à OpenRouter pour la transcription
+- **Vocabulaire** : Stocké localement ; ses termes sont joints à la demande de relecture, pas à la demande de transcription
+- **Réunions** : Transcriptions enregistrées en fichiers texte dans Documents › FnVoice Meetings, sur ton Mac
+- **Aucune télémétrie** : L'app n'envoie aucune donnée ailleurs qu'à OpenRouter
 
 ## Contribuer
 

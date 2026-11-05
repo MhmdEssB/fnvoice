@@ -1,2 +1,3 @@
 "NSMicrophoneUsageDescription" = "FnVoice enregistre ta voix pour la transcrire en texte.";
+"NSAudioCaptureUsageDescription" = "FnVoice enregistre le son de l'ordinateur pendant une réunion (voix des autres participants) pour la transcrire.";
 "NSAppleEventsUsageDescription" = "FnVoice envoie des commandes clavier pour coller le texte transcrit.";

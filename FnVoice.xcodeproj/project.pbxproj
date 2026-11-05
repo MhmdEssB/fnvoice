@@ -23,6 +23,10 @@
 		CCC000007 /* AppIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = CCC000017 /* AppIcon.icns */; };
 		CCC000006 /* VocabularyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC000016 /* VocabularyView.swift */; };
 		CCC000005 /* VocabularyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC000015 /* VocabularyService.swift */; };
+		DDD000003 /* SystemAudioRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD000013 /* SystemAudioRecorder.swift */; };
+		DDD000002 /* MeetingAudio.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD000012 /* MeetingAudio.swift */; };
+		DDD000001 /* MeetingRecorder.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD000011 /* MeetingRecorder.swift */; };
+		DDD000000 /* VocabularyCorrector.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDD000010 /* VocabularyCorrector.swift */; };
 		CCC000004 /* ModelCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC000014 /* ModelCatalog.swift */; };
 		CCC000003 /* WindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC000013 /* WindowManager.swift */; };
 		CCC000002 /* SeedVocabulary.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCC000012 /* SeedVocabulary.swift */; };
@@ -49,6 +53,10 @@
 		BBB000012 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
 		CCC000016 /* VocabularyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyView.swift; sourceTree = "<group>"; };
 		CCC000015 /* VocabularyService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyService.swift; sourceTree = "<group>"; };
+		DDD000013 /* SystemAudioRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemAudioRecorder.swift; sourceTree = "<group>"; };
+		DDD000012 /* MeetingAudio.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingAudio.swift; sourceTree = "<group>"; };
+		DDD000011 /* MeetingRecorder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MeetingRecorder.swift; sourceTree = "<group>"; };
+		DDD000010 /* VocabularyCorrector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VocabularyCorrector.swift; sourceTree = "<group>"; };
 		CCC000014 /* ModelCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModelCatalog.swift; sourceTree = "<group>"; };
 		CCC000013 /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
 		CCC000012 /* SeedVocabulary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeedVocabulary.swift; sourceTree = "<group>"; };
@@ -102,6 +110,10 @@
 				BBB000010 /* SoundService.swift */,
 				BBB000011 /* HistoryService.swift */,
 				CCC000015 /* VocabularyService.swift */,
+				DDD000013 /* SystemAudioRecorder.swift */,
+				DDD000012 /* MeetingAudio.swift */,
+				DDD000011 /* MeetingRecorder.swift */,
+				DDD000010 /* VocabularyCorrector.swift */,
 				CCC000014 /* ModelCatalog.swift */,
 			);
 			path = Services;
@@ -219,6 +231,10 @@
 				BBB000003 /* HistoryView.swift in Sources */,
 				CCC000006 /* VocabularyView.swift in Sources */,
 				CCC000005 /* VocabularyService.swift in Sources */,
+				DDD000003 /* SystemAudioRecorder.swift in Sources */,
+				DDD000002 /* MeetingAudio.swift in Sources */,
+				DDD000001 /* MeetingRecorder.swift in Sources */,
+				DDD000000 /* VocabularyCorrector.swift in Sources */,
 				CCC000004 /* ModelCatalog.swift in Sources */,
 				CCC000003 /* WindowManager.swift in Sources */,
 				CCC000002 /* SeedVocabulary.swift in Sources */,

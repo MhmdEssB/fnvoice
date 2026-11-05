@@ -76,8 +76,20 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             HStack(spacing: 10) {
                                 Picker("", selection: $settings.modelID) {
-                                    ForEach(modelChoices) { model in
-                                        Text(model.name).tag(model.id)
+                                    if let missing = missingSelection {
+                                        Text(missing.name).tag(missing.id)
+                                    }
+                                    Section(tr("Zero-retention compatible", "Compatibles zéro rétention")) {
+                                        ForEach(catalog.compatibleModels) { model in
+                                            Text(model.name).tag(model.id)
+                                        }
+                                    }
+                                    if !catalog.incompatibleModels.isEmpty {
+                                        Section(tr("Incompatible with zero retention", "Incompatibles avec la zéro rétention")) {
+                                            ForEach(catalog.incompatibleModels) { model in
+                                                Text("\(model.name)  (incompatible)").tag(model.id)
+                                            }
+                                        }
                                     }
                                 }
                                 .labelsHidden()
@@ -125,6 +137,8 @@ struct SettingsView: View {
                                     .foregroundColor(.secondary)
                             }
 
+                            zdrBadge
+
                             if let summary = selectedModel?.summary, !summary.isEmpty {
                                 Text(summary)
                                     .font(.system(size: 11))
@@ -155,18 +169,19 @@ struct SettingsView: View {
                                 .frame(width: 190)
                             }
 
-                            Toggle(isOn: $settings.strictPrivacy) {
+                            HStack(alignment: .top, spacing: 8) {
+                                Image(systemName: "lock.shield.fill")
+                                    .font(.system(size: 12))
+                                    .foregroundColor(.green)
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text(tr("Strict privacy", "Confidentialité stricte"))
+                                    Text(tr("Zero data retention: always on", "Zéro rétention des données : toujours active"))
                                         .font(.system(size: 12))
-                                    Text(tr("Only uses providers that do not retain data. Some models may then refuse the request.", "N'utilise que des fournisseurs qui ne conservent pas les données. Certains modèles peuvent alors refuser la demande."))
+                                    Text(tr("Transcription and proofreading only use providers that keep neither your voice nor your text. Models that cannot meet this are listed as incompatible.", "La transcription et la relecture ne passent que par des fournisseurs qui n'enregistrent ni ta voix ni ton texte. Les modèles qui ne peuvent pas s'y plier sont marqués comme incompatibles."))
                                         .font(.system(size: 10))
                                         .foregroundColor(.secondary)
                                         .fixedSize(horizontal: false, vertical: true)
                                 }
                             }
-                            .toggleStyle(.switch)
-                            .controlSize(.small)
                         }
                     }
 
@@ -192,13 +207,60 @@ struct SettingsView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(tr("Learn my terms automatically", "Apprendre mes termes automatiquement"))
                                         .font(.system(size: 12))
-                                    Text(tr("An acronym or technical word dictated twice is added to the vocabulary.", "Un acronym ou un mot technique dicté deux fois est ajouté au vocabulaire."))
+                                    Text(tr("An acronym or technical word dictated twice is added to the vocabulary.", "Un acronyme ou un mot technique dicté deux fois est ajouté au vocabulaire."))
                                         .font(.system(size: 10))
                                         .foregroundColor(.secondary)
                                 }
                             }
                             .toggleStyle(.switch)
                             .controlSize(.small)
+
+                            Toggle(isOn: $settings.smartCorrection) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(tr("Correct transcripts with my vocabulary", "Corriger les transcriptions avec mon vocabulaire"))
+                                        .font(.system(size: 12))
+                                    Text(tr("A small model (Claude Haiku) rereads each dictation and restores the exact spelling of your terms (acronyms, names and jargon). About 1 second longer.", "Un petit modèle (Claude Haiku) relit chaque dictée et remet l'orthographe exacte de tes termes (acronymes, noms et jargon). Environ 1 seconde de plus."))
+                                        .font(.system(size: 10))
+                                        .foregroundColor(.secondary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+                        }
+                    }
+
+                    // MARK: - Meetings Section
+                    SettingsSection(title: tr("MEETINGS", "RÉUNIONS"), icon: "person.2.wave.2") {
+                        VStack(alignment: .leading, spacing: 12) {
+                            Toggle(isOn: $settings.meetingSummary) {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(tr("Add a summary at the top of the file", "Ajouter un résumé en tête du fichier"))
+                                        .font(.system(size: 12))
+                                    Text(tr("Summary, decisions and actions, written from the transcript.", "Résumé, décisions et actions, rédigés à partir de la transcription."))
+                                        .font(.system(size: 10))
+                                        .foregroundColor(.secondary)
+                                        .fixedSize(horizontal: false, vertical: true)
+                                }
+                            }
+                            .toggleStyle(.switch)
+                            .controlSize(.small)
+
+                            Divider().opacity(0.5)
+
+                            HStack(spacing: 12) {
+                                Text(tr("Transcripts are saved in Documents › FnVoice Meetings.", "Les transcriptions sont enregistrées dans Documents › FnVoice Meetings."))
+                                    .font(.system(size: 11))
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
+
+                                Spacer()
+
+                                Button(tr("Open folder", "Ouvrir le dossier")) {
+                                    MeetingRecorder.shared.openFolder()
+                                }
+                                .buttonStyle(RefinedButtonStyle(isPrimary: false))
+                            }
                         }
                     }
 
@@ -341,11 +403,30 @@ struct SettingsView: View {
         catalog.model(for: settings.modelID)
     }
 
-    /// OpenRouter's list, plus the chosen model if it is no longer in it.
-    private var modelChoices: [TranscriptionModel] {
-        if selectedModel != nil { return catalog.models }
-        let current = TranscriptionModel(id: settings.modelID, name: settings.modelID, summary: "", pricePerHour: nil)
-        return [current] + catalog.models
+    /// The chosen model if it is no longer in OpenRouter's list.
+    private var missingSelection: TranscriptionModel? {
+        guard selectedModel == nil else { return nil }
+        return TranscriptionModel(id: settings.modelID, name: settings.modelID, summary: "", pricePerHour: nil)
+    }
+
+    /// Says clearly whether the chosen model will work with zero data retention.
+    @ViewBuilder
+    private var zdrBadge: some View {
+        switch catalog.isZDRCompatible(settings.modelID) {
+        case .some(true):
+            Label(tr("Zero-retention compatible: your voice is not stored anywhere", "Compatible zéro rétention : ta voix n'est conservée nulle part"), systemImage: "lock.shield.fill")
+                .font(.system(size: 11))
+                .foregroundColor(.green)
+        case .some(false):
+            Label(tr("Incompatible with zero retention: this model will refuse your dictations. Pick one from the first part of the list.", "Incompatible zéro rétention : ce modèle refusera tes dictées. Choisis-en un dans la première partie de la liste."), systemImage: "xmark.shield.fill")
+                .font(.system(size: 11))
+                .foregroundColor(.red)
+                .fixedSize(horizontal: false, vertical: true)
+        case .none:
+            Label(tr("Zero-retention compatibility unknown: refresh the list", "Compatibilité zéro rétention inconnue : mets à jour la liste"), systemImage: "questionmark.circle")
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
+        }
     }
 
     private func validateKey() {

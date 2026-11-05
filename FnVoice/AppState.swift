@@ -43,6 +43,8 @@ final class AppState: ObservableObject {
 
         // Refresh the list of available models
         Task { await ModelCatalog.shared.refresh() }
+        // Sort the learned terms that do not have a domain yet
+        Task { await VocabularyService.shared.classifyPendingTerms() }
     }
 
     private func startRecording() {
@@ -111,7 +113,19 @@ final class AppState: ObservableObject {
             do {
                 let raw = try await TranscriptionService.shared.transcribe(audioURL: audioURL)
                 let vocabulary = VocabularyService.shared
-                let text = vocabulary.applyReplacements(to: raw)
+                var text = vocabulary.applyReplacements(to: raw)
+                // The vocabulary acts here: transcription models do not accept a word list
+                if let apiKey = KeychainHelper.shared.getAPIKey() {
+                    let recent = HistoryService.shared.entries
+                        .filter { Date().timeIntervalSince($0.date) < 15 * 60 }
+                        .prefix(3).reversed().map(\.text).joined(separator: "\n")
+                    text = await VocabularyCorrector.correct(
+                        text,
+                        context: String(recent.suffix(800)),
+                        apiKey: apiKey,
+                        strictPrivacy: AppSettings.shared.strictPrivacy
+                    )
+                }
 
                 if !text.isEmpty {
                     HistoryService.shared.add(text)

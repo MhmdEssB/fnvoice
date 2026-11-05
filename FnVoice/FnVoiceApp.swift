@@ -3,6 +3,7 @@ import SwiftUI
 @main
 struct FnVoiceApp: App {
     @StateObject private var appState = AppState()
+    @ObservedObject private var meeting = MeetingRecorder.shared
 
     var body: some Scene {
         MenuBarExtra {
@@ -27,6 +28,10 @@ struct FnVoiceApp: App {
         } else if appState.isRecording {
             Image(systemName: "waveform.circle.fill")
                 .symbolEffect(.variableColor.iterative)
+                .foregroundStyle(.red)
+        } else if case .recording = meeting.phase {
+            Image(systemName: "record.circle.fill")
+                .symbolEffect(.pulse)
                 .foregroundStyle(.red)
         } else {
             Image(systemName: "waveform.circle")

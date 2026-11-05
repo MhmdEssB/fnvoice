@@ -21,8 +21,11 @@ final class ModelCatalog: ObservableObject {
     @Published private(set) var models: [TranscriptionModel] = []
     @Published private(set) var isLoading = false
     @Published private(set) var loadFailed = false
+    /// Models that OpenRouter serves with zero data retention (empty until the list has been loaded once).
+    @Published private(set) var zdrModelIDs: Set<String> = []
 
     private let cacheURL: URL
+    private let zdrCacheURL: URL
 
     private init() {
         cacheURL = AppFolder.url.appendingPathComponent("models.json")
@@ -33,6 +36,40 @@ final class ModelCatalog: ObservableObject {
         } else {
             models = Self.fallback
         }
+        zdrCacheURL = AppFolder.url.appendingPathComponent("zdr-models.json")
+        if let data = try? Data(contentsOf: zdrCacheURL),
+           let cached = try? JSONDecoder().decode(Set<String>.self, from: data) {
+            zdrModelIDs = cached
+        }
+    }
+
+    /// True / false when the zero-data-retention compatibility is known, nil otherwise.
+    func isZDRCompatible(_ id: String) -> Bool? {
+        zdrModelIDs.isEmpty ? nil : zdrModelIDs.contains(id)
+    }
+
+    /// Compatible models first, then the others (unusable while zero data retention is enforced).
+    var compatibleModels: [TranscriptionModel] { models.filter { isZDRCompatible($0.id) != false } }
+    var incompatibleModels: [TranscriptionModel] { models.filter { isZDRCompatible($0.id) == false } }
+
+    private func refreshZDR() async {
+        guard let url = URL(string: Constants.openRouterZDRURL) else { return }
+        var request = URLRequest(url: url)
+        request.timeoutInterval = 20
+        guard let (data, response) = try? await URLSession.shared.data(for: request),
+              (response as? HTTPURLResponse)?.statusCode == 200,
+              let decoded = try? JSONDecoder().decode(ZDRResponse.self, from: data) else { return }
+        let ids = Set(decoded.data.compactMap(\.model_id))
+        guard !ids.isEmpty else { return }
+        zdrModelIDs = ids
+        if let encoded = try? JSONEncoder().encode(ids) {
+            try? encoded.write(to: zdrCacheURL)
+        }
+    }
+
+    private struct ZDRResponse: Decodable {
+        struct Endpoint: Decodable { let model_id: String? }
+        let data: [Endpoint]
     }
 
     func model(for id: String) -> TranscriptionModel? {
@@ -43,6 +80,7 @@ final class ModelCatalog: ObservableObject {
         guard !isLoading, let url = URL(string: Constants.openRouterModelsURL) else { return }
         isLoading = true
         defer { isLoading = false }
+        await refreshZDR()
 
         do {
             var request = URLRequest(url: url)

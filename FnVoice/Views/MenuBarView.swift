@@ -6,6 +6,7 @@ struct MenuBarView: View {
     @ObservedObject private var history = HistoryService.shared
     @ObservedObject private var settings = AppSettings.shared
     @ObservedObject private var catalog = ModelCatalog.shared
+    @ObservedObject private var meeting = MeetingRecorder.shared
 
     @State private var copiedEntry: UUID?
 
@@ -16,6 +17,8 @@ struct MenuBarView: View {
             if let warning {
                 warningCard(warning)
             }
+
+            meetingSection
 
             if !history.entries.isEmpty {
                 VStack(alignment: .leading, spacing: 2) {
@@ -95,7 +98,7 @@ struct MenuBarView: View {
 
     private var headerInfo: some View {
         VStack(alignment: .leading, spacing: 5) {
-            infoLine(icon: "keyboard", text: "Maintiens Fn pour parler")
+            infoLine(icon: "keyboard", text: tr("Hold Fn to talk", "Maintiens Fn pour parler"))
             infoLine(icon: "cpu", text: modelName)
         }
         .padding(10)
@@ -167,6 +170,178 @@ struct MenuBarView: View {
         .padding(.horizontal, 12)
     }
 
+    // MARK: - Meeting
+
+    @ViewBuilder
+    private var meetingSection: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            sectionTitle(tr("MEETING", "RÉUNION"))
+
+            switch meeting.phase {
+            case .idle:
+                MenuRow(icon: "record.circle", title: tr("Record a meeting", "Enregistrer une réunion")) {
+                    meeting.start()
+                }
+                MenuRow(icon: "folder", title: tr("Meetings folder", "Dossier des réunions"), isSecondary: true) {
+                    meeting.openFolder()
+                }
+
+            case .recording(let start):
+                recordingCard(since: start)
+
+            case .processing(let done, let total, let step):
+                processingCard(done: done, total: total, step: step)
+
+            case .finished(let url):
+                finishedCard(url: url)
+
+            case .failed(let message):
+                failedCard(message: message)
+            }
+        }
+    }
+
+    private func meetingCard<Content: View>(tint: Color, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            content()
+
+            if let warning = meeting.warning {
+                Text(warning)
+                    .font(.system(size: 10))
+                    .foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(tint.opacity(0.12), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .padding(.horizontal, 12)
+    }
+
+    private func recordingCard(since start: Date) -> some View {
+        meetingCard(tint: .red) {
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                HStack(spacing: 8) {
+                    Circle()
+                        .fill(.red)
+                        .frame(width: 8, height: 8)
+                    Text(tr("Meeting in progress", "Réunion en cours"))
+                        .font(.system(size: 12, weight: .semibold))
+                    Spacer()
+                    Text(elapsedText(since: start, now: context.date))
+                        .font(.system(size: 12, weight: .medium))
+                        .monospacedDigit()
+                        .foregroundStyle(.secondary)
+                }
+            }
+
+            Text(meeting.capturesSystemAudio
+                 ? tr("Microphone + computer sound", "Micro + son de l'ordinateur")
+                 : tr("Microphone only", "Micro seulement"))
+                .font(.system(size: 10))
+                .foregroundStyle(.secondary)
+
+            Button(tr("Stop and transcribe", "Arrêter et transcrire")) {
+                meeting.stop()
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.red)
+            .controlSize(.small)
+        }
+    }
+
+    private func processingCard(done: Int, total: Int, step: String) -> some View {
+        meetingCard(tint: .blue) {
+            Text("\(step)… \(done)/\(total)")
+                .font(.system(size: 12, weight: .semibold))
+                .monospacedDigit()
+
+            ProgressView(value: Double(done), total: Double(max(total, 1)))
+
+            Text(tr("You can keep dictating meanwhile.", "Tu peux continuer à dicter pendant ce temps."))
+                .font(.system(size: 10))
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private func finishedCard(url: URL) -> some View {
+        meetingCard(tint: .green) {
+            HStack(spacing: 8) {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+                Text(tr("Transcript ready", "Transcription prête"))
+                    .font(.system(size: 12, weight: .semibold))
+            }
+
+            HStack(spacing: 8) {
+                Button(tr("Open", "Ouvrir")) {
+                    meeting.openTranscript(url)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(.green)
+                .controlSize(.small)
+
+                Button(tr("OK", "OK")) {
+                    meeting.dismiss()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+        }
+    }
+
+    private func failedCard(message: String) -> some View {
+        meetingCard(tint: .orange) {
+            HStack(alignment: .top, spacing: 8) {
+                Image(systemName: "exclamationmark.triangle.fill")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.orange)
+                    .frame(width: 16)
+                Text(message)
+                    .font(.system(size: 11))
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            HStack(spacing: 8) {
+                if meeting.canRetry {
+                    Button(tr("Retry", "Réessayer")) {
+                        meeting.retry()
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(.orange)
+                    .controlSize(.small)
+                }
+
+                Button(meeting.canRetry ? tr("Later", "Plus tard") : tr("Close", "Fermer")) {
+                    meeting.dismiss()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+
+                if meeting.canRetry {
+                    Button(tr("Delete", "Supprimer")) {
+                        meeting.discardPending()
+                    }
+                    .buttonStyle(.borderless)
+                    .foregroundStyle(.secondary)
+                    .controlSize(.small)
+                    .help(tr("Permanently delete this recording", "Supprimer définitivement cet enregistrement"))
+                }
+            }
+        }
+    }
+
+    private func elapsedText(since start: Date, now: Date) -> String {
+        let total = max(0, Int(now.timeIntervalSince(start)))
+        let hours = total / 3600
+        let minutes = (total % 3600) / 60
+        let seconds = total % 60
+        if hours > 0 {
+            return String(format: "%d:%02d:%02d", hours, minutes, seconds)
+        }
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+
     // MARK: - Actions
 
     private func copy(_ entry: TranscriptionEntry) {
@@ -187,6 +362,8 @@ struct MenuBarView: View {
             return .blue
         } else if appState.isRecording {
             return .red
+        } else if case .recording = meeting.phase {
+            return .red
         } else if !appState.hasAPIKey {
             return .orange
         } else {
@@ -199,6 +376,8 @@ struct MenuBarView: View {
             return tr("Transcribing...", "Transcription en cours...")
         } else if appState.isRecording {
             return tr("Recording...", "Enregistrement...")
+        } else if case .recording = meeting.phase {
+            return tr("Meeting being recorded", "Réunion en cours d'enregistrement")
         } else if !appState.hasAPIKey {
             return tr("OpenRouter key not set", "Clé OpenRouter non configurée")
         } else {

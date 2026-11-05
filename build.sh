@@ -28,7 +28,9 @@ mkdir -p "$APP/Contents/Resources"
 cp FnVoice/Resources/AppIcon.icns "$APP/Contents/Resources/AppIcon.icns"
 cp -R FnVoice/Resources/en.lproj FnVoice/Resources/fr.lproj "$APP/Contents/Resources/"
 printf 'APPL????' > "$APP/Contents/PkgInfo"
-codesign --force --sign - --entitlements FnVoice/FnVoice.entitlements "$APP"
+# The identifier and designated requirement are fixed, so macOS keeps the
+# microphone, audio capture and Accessibility permissions across rebuilds.
+codesign --force --sign - --identifier com.mhmdessb.fnvoice -r='designated => identifier "com.mhmdessb.fnvoice"' --entitlements FnVoice/FnVoice.entitlements "$APP"
 
 echo "Built: $APP"
 

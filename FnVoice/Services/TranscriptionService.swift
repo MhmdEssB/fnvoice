@@ -49,6 +49,35 @@ final class TranscriptionService {
         return parts.filter { !$0.isEmpty }.joined(separator: " ")
     }
 
+    /// Transcribes a meeting chunk that is already cut, with up to 3 attempts on a temporary error.
+    func transcribeChunk(_ url: URL) async throws -> String {
+        guard let apiKey = KeychainHelper.shared.getAPIKey() else { throw TranscriptionError.noAPIKey }
+        let (model, language, strictPrivacy) = await MainActor.run {
+            (AppSettings.shared.modelID, AppSettings.shared.language, AppSettings.shared.strictPrivacy)
+        }
+        let audio = try Data(contentsOf: url)
+        var attempt = 0
+        while true {
+            attempt += 1
+            do {
+                let text = try await transcribe(audio: audio, model: model, language: language, strictPrivacy: strictPrivacy, apiKey: apiKey)
+                return text.trimmingCharacters(in: .whitespacesAndNewlines)
+            } catch {
+                guard attempt < 3, Self.isTransient(error) else { throw error }
+                try await Task.sleep(nanoseconds: UInt64(attempt) * 3_000_000_000)
+            }
+        }
+    }
+
+    private static func isTransient(_ error: Error) -> Bool {
+        if error is URLError { return true }
+        switch error as? TranscriptionError {
+        case .rateLimited, .invalidResponse: return true
+        case .httpError(let code, _): return code >= 500
+        default: return false
+        }
+    }
+
     // MARK: - Request
 
     /// Sends a piece of audio. If the model rejects the vocabulary, retries with fewer terms.
@@ -70,8 +99,9 @@ final class TranscriptionService {
                 )
                 if known != cap { AppSettings.shared.setKeytermCap(cap, for: model) }
                 return text
-            } catch TranscriptionError.badRequest(let message) where !keyterms.isEmpty {
-                // Probably the vocabulary: retry with a shorter list
+            } catch TranscriptionError.badRequest(let message) where !keyterms.isEmpty && message.lowercased().contains("keyterm") {
+                // The model refuses the word list: retry with a shorter list, then without.
+                // The vocabulary then acts afterwards (VocabularyCorrector).
                 lastError = TranscriptionError.badRequest(message)
                 continue
             }
@@ -93,7 +123,8 @@ final class TranscriptionService {
         ]
         if language != "auto" { payload["language"] = language }
         if !keyterms.isEmpty { payload["keyterms"] = keyterms }
-        if strictPrivacy { payload["provider"] = ["data_collection": "deny"] }
+        // Zero data retention (ZDR) is always required: only providers that do not store the audio
+        payload["provider"] = ["zdr": true, "data_collection": "deny"]
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -147,7 +178,7 @@ final class TranscriptionService {
                 try file.read(into: buffer, frameCount: chunkFrames)
                 guard buffer.frameLength > 0 else { break }
                 let url = FileManager.default.temporaryDirectory
-                    .appendingPathComponent("whisper_chunk_\(UUID().uuidString).wav")
+                    .appendingPathComponent("fnvoice_chunk_\(UUID().uuidString).wav")
                 let output = try AVAudioFile(forWriting: url, settings: file.fileFormat.settings)
                 chunks.append(url)
                 try output.write(from: buffer)
@@ -194,7 +225,7 @@ final class TranscriptionService {
             case .noCredit:
                 return tr("OpenRouter credit used up. Top up your account at openrouter.ai.", "Crédit OpenRouter épuisé : recharge ton compte sur openrouter.ai")
             case .modelUnavailable(let message):
-                return tr("Model unavailable. Pick another one in Settings.", "Modèle indisponible : choisis-en un autre dans les préférences") + (message.map { " (\($0))" } ?? "")
+                return tr("Model unavailable with zero data retention. Pick a compatible one in Settings.", "Modèle indisponible avec la zéro rétention : choisis-en un compatible dans les préférences") + (message.map { " (\($0))" } ?? "")
             case .tooLarge:
                 return tr("Recording too long for this model", "Enregistrement trop long pour ce modèle")
             case .rateLimited:
@@ -206,7 +237,7 @@ final class TranscriptionService {
             case .badRequest(let message):
                 return tr("Request rejected: \(message)", "Demande refusée : \(message)")
             case .httpError(let code, let message):
-                return "Erreur \(code)" + (message.map { " : \($0)" } ?? "")
+                return tr("Error \(code)", "Erreur \(code)") + (message.map { " : \($0)" } ?? "")
             }
         }
     }

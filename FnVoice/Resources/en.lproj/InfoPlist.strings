@@ -1,2 +1,3 @@
 "NSMicrophoneUsageDescription" = "FnVoice records your voice to turn it into text.";
+"NSAudioCaptureUsageDescription" = "FnVoice records the computer's audio during a meeting (the other participants' voices) to transcribe it.";
 "NSAppleEventsUsageDescription" = "FnVoice sends keyboard commands to paste the transcribed text.";

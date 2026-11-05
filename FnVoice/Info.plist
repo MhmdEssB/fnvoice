@@ -9,9 +9,9 @@
     <key>CFBundleIdentifier</key>
     <string>com.mhmdessb.fnvoice</string>
     <key>CFBundleVersion</key>
-    <string>2</string>
+    <string>3</string>
     <key>CFBundleShortVersionString</key>
-    <string>2.0</string>
+    <string>2.1</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleIconFile</key>
@@ -24,6 +24,8 @@
     <true/>
     <key>NSMicrophoneUsageDescription</key>
     <string>FnVoice records your voice to turn it into text.</string>
+    <key>NSAudioCaptureUsageDescription</key>
+    <string>FnVoice records the computer's audio during a meeting (the other participants' voices) to transcribe it.</string>
     <key>NSAppleEventsUsageDescription</key>
     <string>FnVoice sends keyboard commands to paste the transcribed text.</string>
 </dict>

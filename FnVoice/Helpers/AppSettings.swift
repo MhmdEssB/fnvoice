@@ -24,6 +24,16 @@ final class AppSettings: ObservableObject {
         didSet { defaults.set(strictPrivacy, forKey: "strictPrivacy") }
     }
 
+    /// Review each transcription against the glossary with a small language model.
+    @Published var smartCorrection: Bool {
+        didSet { defaults.set(smartCorrection, forKey: "smartCorrection") }
+    }
+
+    /// Add a summary at the top of meeting transcripts.
+    @Published var meetingSummary: Bool {
+        didSet { defaults.set(meetingSummary, forKey: "meetingSummary") }
+    }
+
     static let languages: [(code: String, name: String)] = [
         ("auto", tr("Auto-detect", "Détection automatique")),
         ("en", tr("English", "Anglais")),
@@ -48,6 +58,8 @@ final class AppSettings: ObservableObject {
         language = defaults.string(forKey: "language") ?? AppSettings.systemLanguage
         autoLearn = defaults.object(forKey: "autoLearn") as? Bool ?? true
         strictPrivacy = defaults.bool(forKey: "strictPrivacy")
+        smartCorrection = defaults.object(forKey: "smartCorrection") as? Bool ?? true
+        meetingSummary = defaults.object(forKey: "meetingSummary") as? Bool ?? true
     }
 
     // MARK: - Vocabulary limit accepted by each model
