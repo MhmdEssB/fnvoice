@@ -37,14 +37,14 @@ You need Apple's Command Line Tools (`xcode-select --install`). Xcode is optiona
 
 To start FnVoice at login, add it in System Settings > General > Login Items.
 
-Requirements: macOS 14 (Sonoma) or newer, and an OpenRouter key. Recording a meeting with the computer's sound needs macOS 14.2 or newer. With the default model, transcription costs about $0.45 per hour of audio. The proofreading pass adds about $0.0003 per dictation. Each model's price is shown in Settings.
+Requirements: macOS 14 (Sonoma) or newer, and an OpenRouter key. Recording a meeting with the computer's sound needs macOS 14.2 or newer. With the default model, transcription costs about $0.45 per hour of audio. The proofreading pass adds $0.04 to $0.68 per 1,000 dictations, depending on the model you pick. Each model's price is shown in Settings.
 
 ## Features
 
 - **Hold Fn to dictate.** A short sound confirms when recording starts and when the text is ready.
 - **Any model, any language.** The model list and prices come from OpenRouter and refresh on their own. Pick the spoken language or let the model detect it. Long recordings are split automatically for models that limit audio length.
 - **Vocabulary that learns.** A word or acronym you dictate twice is added automatically. Open the history and click the pencil to fix a dictation: FnVoice keeps the corrected words and applies the fix next time ("N-A-S-A" becomes "NASA"). You can also add terms by hand, or pre-load some in `FnVoice/Helpers/SeedVocabulary.swift` before building.
-- **Proofreading with your vocabulary.** Speech models on OpenRouter do not accept a word list, so FnVoice adds a second step. A small model, Claude Haiku through OpenRouter (GPT-4.1 mini as a backup), rereads each dictation with your glossary, sorted by domain, and the recent dictations as context. It only replaces a word with a glossary term that sounds like it. A safety check rejects any other change, in which case only the local fixes are kept. The step adds about a second. You can turn it off with "Correct transcripts with my vocabulary" in Settings.
+- **Proofreading with your vocabulary.** Speech models on OpenRouter do not accept a word list, so FnVoice adds a second step. A small, fast model rereads each dictation with your glossary, sorted by domain, and the recent dictations as context. It only replaces a word with a glossary term that sounds like it. A safety check rejects any other change, in which case only the local fixes are kept. The step adds about a second. You pick the model under "Review model" in Settings, each one shown with its price per 1,000 dictations, its speed and whether it is served with zero data retention: DeepSeek V4 Flash (default, fastest), Ling 3.1 Flash (cheapest), Mistral Small 3 or Claude Haiku 5.5. Reasoning is turned off so the answer comes back in about a second. If the chosen model is unavailable, FnVoice falls back to the next one. You can turn the step off with "Correct transcripts with my vocabulary".
 - **Meeting recording.** Records your microphone and the computer's sound (the other people in a call) together. The audio is cut into chunks of about 90 seconds, at silences, and four chunks are transcribed at a time. The result is a text file in `Documents/FnVoice Meetings`, with an optional summary of the discussion, decisions and actions at the top. If transcription fails, the recording is kept and the menu offers a retry.
 - **Zero data retention, always on.** Transcription, proofreading and summaries only go through providers that keep neither your audio nor your text. Settings marks each model as compatible or "(incompatible)". Incompatible models are listed last, and choosing one makes OpenRouter refuse your dictations.
 - **24-hour history.** Click a transcription to copy it. Entries are deleted after a day.
@@ -53,7 +53,7 @@ Requirements: macOS 14 (Sonoma) or newer, and an OpenRouter key. Recording a mee
 ## Privacy
 
 - Audio goes to OpenRouter and the provider of the model you chose. Dictation audio is deleted from your Mac after transcription. Meeting audio is deleted once its transcript is written. It is kept only when transcription fails, so you can retry.
-- Zero data retention applies to every request: transcription, proofreading and meeting summaries, Claude Haiku included.
+- Zero data retention applies to every request: transcription, proofreading and meeting summaries.
 - The vocabulary is stored locally. Its terms are sent with the proofreading request, not with the transcription request.
 - Meeting transcripts are saved as text files in `Documents/FnVoice Meetings` on your Mac.
 - The API key stays in the macOS Keychain.

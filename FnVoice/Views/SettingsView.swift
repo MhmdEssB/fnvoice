@@ -219,7 +219,7 @@ struct SettingsView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(tr("Correct transcripts with my vocabulary", "Corriger les transcriptions avec mon vocabulaire"))
                                         .font(.system(size: 12))
-                                    Text(tr("A small model (Claude Haiku) rereads each dictation and restores the exact spelling of your terms (acronyms, names and jargon). About 1 second longer.", "Un petit modèle (Claude Haiku) relit chaque dictée et remet l'orthographe exacte de tes termes (acronymes, noms et jargon). Environ 1 seconde de plus."))
+                                    Text(tr("A small model rereads each dictation and restores the exact spelling of your terms (acronyms, names and jargon). About 1 second longer.", "Un petit modèle relit chaque dictée et remet l'orthographe exacte de tes termes (acronymes, noms et jargon). Environ 1 seconde de plus."))
                                         .font(.system(size: 10))
                                         .foregroundColor(.secondary)
                                         .fixedSize(horizontal: false, vertical: true)
@@ -227,6 +227,10 @@ struct SettingsView: View {
                             }
                             .toggleStyle(.switch)
                             .controlSize(.small)
+
+                            if settings.smartCorrection {
+                                correctionModelPicker
+                            }
                         }
                     }
 
@@ -407,6 +411,82 @@ struct SettingsView: View {
     private var missingSelection: TranscriptionModel? {
         guard selectedModel == nil else { return nil }
         return TranscriptionModel(id: settings.modelID, name: settings.modelID, summary: "", pricePerHour: nil)
+    }
+
+    private var selectedCorrection: CorrectionModel? {
+        Constants.correctionChoices.first { $0.id == settings.correctionModelID }
+    }
+
+    /// Zero data retention of a review model: OpenRouter's list when loaded, otherwise what was
+    /// checked when the list was chosen (all served with zero data retention).
+    private func correctionIsZDR(_ id: String) -> Bool {
+        catalog.isZDRCompatible(id) ?? true
+    }
+
+    /// Choice of the model that reviews dictations, with its price, speed and zero data retention.
+    private var correctionModelPicker: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Divider().opacity(0.5)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(tr("Review model", "Modèle de relecture"))
+                    .font(.system(size: 12))
+                Text(tr("The one that fixes your terms after transcription. All are cheap; price and speed are shown below.", "Celui qui corrige tes termes après la transcription. Tous sont bon marché ; le prix et la vitesse s'affichent dessous."))
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+
+            Picker("", selection: $settings.correctionModelID) {
+                ForEach(Constants.correctionChoices) { model in
+                    Text("\(model.name)  ·  \(model.costLabel)\(correctionIsZDR(model.id) ? "" : tr("  (not zero-retention)", "  (incompatible zéro rétention)"))")
+                        .tag(model.id)
+                }
+            }
+            .labelsHidden()
+            .fixedSize()
+
+            if let model = selectedCorrection {
+                HStack(spacing: 6) {
+                    chip(tr("Response \(model.speedLabel)", "Réponse \(model.speedLabel)"), systemImage: "bolt.fill")
+                    if model.id == Constants.defaultCorrectionModel {
+                        Text(tr("Recommended", "Recommandé"))
+                            .font(.system(size: 10, weight: .bold))
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(accentColor.opacity(0.15))
+                            .foregroundColor(accentColor)
+                            .cornerRadius(4)
+                    }
+                    Spacer()
+                }
+
+                if correctionIsZDR(model.id) {
+                    Label(tr("Zero data retention: your text is stored nowhere", "Zéro rétention : ton texte n'est conservé nulle part"), systemImage: "lock.shield.fill")
+                        .font(.system(size: 11))
+                        .foregroundColor(.green)
+                } else {
+                    Label(tr("Not compatible with zero data retention: the review will fall back to the next model (DeepSeek V4 Flash, Ling 3.1 Flash or Claude Haiku).", "Incompatible zéro rétention : la relecture passera au modèle suivant (DeepSeek V4 Flash, Ling 3.1 Flash ou Claude Haiku)."), systemImage: "xmark.shield.fill")
+                        .font(.system(size: 11))
+                        .foregroundColor(.red)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Text("\(model.summary) " + tr("Price measured with a vocabulary of about 770 terms: it grows with the size of yours.", "Prix mesuré avec un vocabulaire d'environ 770 termes : il augmente avec la taille du tien."))
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+    }
+
+    private func chip(_ text: String, systemImage: String) -> some View {
+        Label(text, systemImage: systemImage)
+            .font(.system(size: 10, weight: .bold))
+            .padding(.horizontal, 8)
+            .padding(.vertical, 4)
+            .background(Color.primary.opacity(0.05))
+            .cornerRadius(4)
     }
 
     /// Says clearly whether the chosen model will work with zero data retention.

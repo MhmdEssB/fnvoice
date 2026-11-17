@@ -13,7 +13,7 @@ enum Constants {
     static let openRouterKeysPage = "https://openrouter.ai/keys"
 
     static let defaultModel = "assemblyai/universal-3-5-pro"
-    static let appVersion = "2.1"
+    static let appVersion = "2.2"
 
     /// Maximum duration (in seconds) accepted per request by some models.
     /// Beyond that, the audio is split into chunks.
@@ -27,9 +27,35 @@ enum Constants {
     /// Number of vocabulary terms sent to the model, from the largest to the safest.
     static let keytermCaps = [300, 100, 0]
 
-    /// Models that review each transcription against the glossary (the second one if the first is unavailable).
-    /// Claude Haiku 5.5 corrects well without ever rewriting or obeying the dictated text.
-    static let correctionModels = ["anthropic/claude-haiku-5.5", "openai/gpt-4.1-mini"]
+    /// Models offered to review each transcription against the glossary, all served with zero data retention.
+    /// Picked after a benchmark (trick dictations, misheard acronyms, questions and orders inside the dictation,
+    /// reasoning off). Smaller models (Llama 8B, Mistral Nemo, Nova Micro) answered the dictated content
+    /// instead of correcting it, so they are not offered.
+    /// Cost measured with a vocabulary of about 770 terms (it grows with the vocabulary).
+    static let correctionChoices: [CorrectionModel] = [
+        CorrectionModel(id: "deepseek/deepseek-v4-flash-0731", name: "DeepSeek V4 Flash",
+                        summary: tr("The fastest, no mistakes in the benchmark.", "Le plus rapide, sans faute au banc d'essai."),
+                        costPer1000: 0.25, seconds: 1.0),
+        CorrectionModel(id: "inclusionai/ling-3.1-flash", name: "Ling 3.1 Flash",
+                        summary: tr("The cheapest, no mistakes in the benchmark, a bit slower.", "Le moins cher, sans faute au banc d'essai, un peu plus lent."),
+                        costPer1000: 0.04, seconds: 1.8),
+        CorrectionModel(id: "mistralai/mistral-small-24b-instruct-2501", name: "Mistral Small 3",
+                        summary: tr("Cheap and accurate, but sometimes misses an acronym split into pieces.", "Bon marché et juste, mais rate parfois un sigle mal découpé."),
+                        costPer1000: 0.19, seconds: 1.5),
+        CorrectionModel(id: "anthropic/claude-haiku-5.5", name: "Claude Haiku 5.5",
+                        summary: tr("Very accurate but the most expensive, and sometimes slow (up to 7 s).", "Très juste mais le plus cher, et parfois lent (jusqu'à 7 s)."),
+                        costPer1000: 0.68, seconds: 2.2)
+    ]
+    static let defaultCorrectionModel = "deepseek/deepseek-v4-flash-0731"
+
+    /// Order tried: the chosen model, then DeepSeek V4 Flash, Ling 3.1 Flash and Haiku if the previous one is unavailable.
+    static var correctionModels: [String] {
+        var order = [AppSettings.shared.correctionModelID]
+        for id in ["deepseek/deepseek-v4-flash-0731", "inclusionai/ling-3.1-flash", "anthropic/claude-haiku-5.5"] where !order.contains(id) {
+            order.append(id)
+        }
+        return order
+    }
     static let correctionGlossaryLimit = 1500
 
     /// Models that write the summary of a meeting.
@@ -45,3 +71,25 @@ enum Constants {
 /// English by default; French when the system language is French.
 let prefersFrench = Locale.preferredLanguages.first?.hasPrefix("fr") == true
 func tr(_ en: String, _ fr: String) -> String { prefersFrench ? fr : en }
+
+/// A model offered for reviewing dictations.
+struct CorrectionModel: Identifiable, Hashable {
+    let id: String
+    let name: String
+    let summary: String
+    /// Measured cost, in dollars, for 1,000 dictations.
+    let costPer1000: Double
+    /// Usual response time, in seconds.
+    let seconds: Double
+
+    var costLabel: String {
+        prefersFrench
+            ? String(format: "%.2f $ / 1 000 dictées", costPer1000).replacingOccurrences(of: ".", with: ",")
+            : String(format: "$%.2f / 1,000 dictations", costPer1000)
+    }
+
+    var speedLabel: String {
+        let text = String(format: "≈ %.1f s", seconds)
+        return prefersFrench ? text.replacingOccurrences(of: ".", with: ",") : text
+    }
+}

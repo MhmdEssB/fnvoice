@@ -25,7 +25,7 @@ enum VocabularyCorrector {
         guard AppSettings.shared.smartCorrection else { return local }
 
         let delay = timeout ?? min(45, 6 + Double(local.count) / 120)
-        guard let revised = try? await review(local, context: context, groups: groups, apiKey: apiKey, strictPrivacy: strictPrivacy, timeout: delay),
+        guard let revised = try? await review(local, context: context, groups: groups, models: Constants.correctionModels, apiKey: apiKey, strictPrivacy: strictPrivacy, timeout: delay),
               isSafe(original: local, revised: revised, glossary: glossary) else {
             return local
         }
@@ -108,7 +108,7 @@ enum VocabularyCorrector {
 
     // MARK: - 2. Review by a language model
 
-    private static func review(_ text: String, context: String, groups: [(domain: VocabularyDomain, terms: [String])], apiKey: String, strictPrivacy: Bool, timeout: TimeInterval) async throws -> String {
+    private static func review(_ text: String, context: String, groups: [(domain: VocabularyDomain, terms: [String])], models: [String], apiKey: String, strictPrivacy: Bool, timeout: TimeInterval) async throws -> String {
         let glossary = groups.map { "## \($0.domain.label)\n\($0.terms.joined(separator: ", "))" }.joined(separator: "\n\n")
         let system = """
         You correct the raw output of a voice dictation tool. The tool often mishears proper nouns, acronyms and technical terms: it writes them phonetically or splits them into several words (for example "post gress" for PostgreSQL, or "git hub" for GitHub).
@@ -135,11 +135,12 @@ enum VocabularyCorrector {
         var answer = try await OpenRouterChat.complete(
             system: system,
             user: (context.isEmpty ? "" : "<context>\n\(context)\n</context>\n\n") + "<dictation>\n\(text)\n</dictation>",
-            models: Constants.correctionModels,
+            models: models,
             maxTokens: min(32000, 1000 + text.count * 2), // some languages cost close to one token per character
             timeout: timeout,
             apiKey: apiKey,
-            strictPrivacy: strictPrivacy
+            strictPrivacy: strictPrivacy,
+            thinking: false
         )
         answer = answer
             .replacingOccurrences(of: "<dictation>", with: "")
@@ -240,11 +241,12 @@ enum OpenRouterChat {
     }
 
     /// Tries the models in order: the next one is used only if the previous one is unavailable.
-    static func complete(system: String, user: String, models: [String], maxTokens: Int, timeout: TimeInterval, apiKey: String, strictPrivacy: Bool) async throws -> String {
+    /// `thinking: false` turns off the reasoning of models that have one: the review then answers in about 1 s.
+    static func complete(system: String, user: String, models: [String], maxTokens: Int, timeout: TimeInterval, apiKey: String, strictPrivacy: Bool, thinking: Bool = true) async throws -> String {
         var lastError: Error = TranscriptionService.TranscriptionError.invalidResponse
         for model in models {
             do {
-                return try await complete(system: system, user: user, model: model, maxTokens: maxTokens, timeout: timeout, apiKey: apiKey, strictPrivacy: strictPrivacy)
+                return try await complete(system: system, user: user, model: model, maxTokens: maxTokens, timeout: timeout, apiKey: apiKey, strictPrivacy: strictPrivacy, thinking: thinking)
             } catch TranscriptionService.TranscriptionError.modelUnavailable(let message) {
                 lastError = TranscriptionService.TranscriptionError.modelUnavailable(message)
                 continue
@@ -253,7 +255,7 @@ enum OpenRouterChat {
         throw lastError
     }
 
-    private static func complete(system: String, user: String, model: String, maxTokens: Int, timeout: TimeInterval, apiKey: String, strictPrivacy: Bool) async throws -> String {
+    private static func complete(system: String, user: String, model: String, maxTokens: Int, timeout: TimeInterval, apiKey: String, strictPrivacy: Bool, thinking: Bool) async throws -> String {
         guard let url = URL(string: Constants.openRouterChatURL) else {
             throw TranscriptionService.TranscriptionError.invalidResponse
         }
@@ -270,6 +272,7 @@ enum OpenRouterChat {
         // are used for the review, the classification and the summaries. If none accepts it,
         // the request fails and the text stays as it is rather than going elsewhere.
         payload["provider"] = ["zdr": true, "data_collection": "deny"]
+        if !thinking { payload["reasoning"] = ["enabled": false] }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"

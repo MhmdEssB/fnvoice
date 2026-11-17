@@ -401,7 +401,8 @@ final class VocabularyService: ObservableObject {
                 maxTokens: 4000,
                 timeout: 90,
                 apiKey: apiKey,
-                strictPrivacy: AppSettings.shared.strictPrivacy
+                strictPrivacy: AppSettings.shared.strictPrivacy,
+                thinking: false
             ) else {
                 lastClassificationFailure = Date()
                 return

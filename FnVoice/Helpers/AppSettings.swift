@@ -30,6 +30,11 @@ final class AppSettings: ObservableObject {
     }
 
     /// Add a summary at the top of meeting transcripts.
+    /// Model that reviews dictations (see `Constants.correctionChoices`).
+    @Published var correctionModelID: String {
+        didSet { defaults.set(correctionModelID, forKey: "correctionModelID") }
+    }
+
     @Published var meetingSummary: Bool {
         didSet { defaults.set(meetingSummary, forKey: "meetingSummary") }
     }
@@ -60,6 +65,8 @@ final class AppSettings: ObservableObject {
         strictPrivacy = defaults.bool(forKey: "strictPrivacy")
         smartCorrection = defaults.object(forKey: "smartCorrection") as? Bool ?? true
         meetingSummary = defaults.object(forKey: "meetingSummary") as? Bool ?? true
+        let savedCorrection = defaults.string(forKey: "correctionModelID") ?? ""
+        correctionModelID = Constants.correctionChoices.contains { $0.id == savedCorrection } ? savedCorrection : Constants.defaultCorrectionModel
     }
 
     // MARK: - Vocabulary limit accepted by each model

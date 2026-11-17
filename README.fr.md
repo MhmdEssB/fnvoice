@@ -89,11 +89,11 @@ Les dictées trop longues pour un modèle (2 minutes pour Universal-3.5 Pro) son
 - Le menu « Vocabulaire » permet d'ajouter ou de supprimer des termes et des corrections
 
 ### Relecture par ton vocabulaire
-Les modèles de transcription d'OpenRouter n'acceptent pas de liste de mots. FnVoice ajoute donc une étape après la transcription : un petit modèle, Claude Haiku via OpenRouter (GPT-4.1 mini en secours), relit chaque dictée avec ton glossaire, rangé par domaine (sciences, informatique, finance, droit, marques, noms de personnes, lieux…), ainsi que les dictées récentes pour le contexte.
+Les modèles de transcription d'OpenRouter n'acceptent pas de liste de mots. FnVoice ajoute donc une étape après la transcription : un petit modèle rapide relit chaque dictée avec ton glossaire, rangé par domaine (sciences, informatique, finance, droit, marques, noms de personnes, lieux…), ainsi que les dictées récentes pour le contexte.
 
 Il ne remplace un mot que par un terme du glossaire qui s'en rapproche à l'oreille. Un contrôle de sécurité refuse tout autre changement : dans ce cas, seules les corrections locales sont gardées.
 
-Cette relecture ajoute environ une seconde. Tu peux la désactiver avec « Corriger les transcriptions avec mon vocabulaire » dans les réglages. Elle coûte environ 0,0003 $ par dictée.
+Cette relecture ajoute environ une seconde. Tu choisis le modèle sous « Modèle de relecture » dans les réglages, chacun affiché avec son prix pour 1 000 dictées, sa vitesse et sa compatibilité zéro rétention : DeepSeek V4 Flash (par défaut, le plus rapide), Ling 3.1 Flash (le moins cher), Mistral Small 3 ou Claude Haiku 5.5. La réflexion du modèle est coupée pour qu'il réponde en une seconde environ. Si le modèle choisi est indisponible, FnVoice passe au suivant. Tu peux désactiver la relecture avec « Corriger les transcriptions avec mon vocabulaire ». Elle coûte entre 0,04 et 0,68 $ pour 1 000 dictées selon le modèle.
 
 ### Enregistrer une réunion
 Le menu « Réunion » enregistre en même temps ton micro et le son de l'ordinateur (les autres participants d'un appel). macOS demande alors l'autorisation « Enregistrement audio du système ». Cette fonction demande macOS 14.2 ou plus récent.
@@ -150,7 +150,7 @@ Ta clé API est stockée de façon sécurisée dans le Keychain de macOS (le mê
 ## Confidentialité
 
 - **Audio** : Envoyé à OpenRouter et au fournisseur du modèle choisi, puis supprimé de ton Mac après la transcription. Pour une réunion, l'audio est supprimé dès que le fichier texte est écrit ; il n'est conservé qu'en cas d'échec, pour pouvoir réessayer
-- **Zéro rétention** : appliquée à chaque requête (transcription, relecture et résumé, Claude Haiku compris)
+- **Zéro rétention** : appliquée à chaque requête (transcription, relecture et résumé)
 - **Clé API** : Stockée dans le Keychain macOS (chiffré)
 - **Historique** : Stocké localement, supprimé après 24h
 - **Vocabulaire** : Stocké localement ; ses termes sont joints à la demande de relecture, pas à la demande de transcription
