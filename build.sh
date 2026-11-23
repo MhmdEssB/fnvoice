@@ -15,13 +15,27 @@ mkdir -p "$APP/Contents/MacOS"
 SOURCES=()
 while IFS= read -r file; do SOURCES+=("$file"); done < <(find FnVoice -name '*.swift' | sort)
 
-for ARCH in arm64 x86_64; do
-    xcrun swiftc -O -parse-as-library \
-        -target "$ARCH-apple-macos14.0" -sdk "$SDK" \
-        "${SOURCES[@]}" -o "$OUT/FnVoice-$ARCH"
-done
-lipo -create "$OUT/FnVoice-arm64" "$OUT/FnVoice-x86_64" -output "$APP/Contents/MacOS/FnVoice"
-rm "$OUT/FnVoice-arm64" "$OUT/FnVoice-x86_64"
+# 1. On-device engine (Parakeet v3 through FluidAudio), built by SwiftPM as a dynamic library.
+#    Apple silicon only: Intel Macs have no Neural Engine.
+(cd LocalASR && swift build -c release --arch arm64)
+LIBDIR="LocalASR/.build/arm64-apple-macosx/release"
+[[ -f "$LIBDIR/libParakeetKit.dylib" ]] || LIBDIR="LocalASR/.build/release"
+INTERFACE="$(find LocalASR/.build -path '*arm64*' -name 'ParakeetKit.swiftinterface' -print -quit)"
+[[ -n "$INTERFACE" ]] || { echo "ParakeetKit interface not found (was LocalASR built?)" >&2; exit 1; }
+# The app imports ParakeetKit through its stable interface: it does not need FluidAudio's modules.
+mkdir -p "$OUT/modules/ParakeetKit.swiftmodule"
+cp "$INTERFACE" "$OUT/modules/ParakeetKit.swiftmodule/arm64-apple-macos.swiftinterface"
+
+# 2. The app
+xcrun swiftc -O -parse-as-library \
+    -target "arm64-apple-macos14.0" -sdk "$SDK" \
+    -I "$OUT/modules" -L "$LIBDIR" -lParakeetKit \
+    -Xlinker -rpath -Xlinker @executable_path/../Frameworks \
+    "${SOURCES[@]}" -o "$APP/Contents/MacOS/FnVoice"
+mkdir -p "$APP/Contents/Frameworks"
+cp "$LIBDIR/libParakeetKit.dylib" "$APP/Contents/Frameworks/"
+codesign --force --sign - "$APP/Contents/Frameworks/libParakeetKit.dylib"
+rm -rf "$OUT/modules"
 
 cp FnVoice/Info.plist "$APP/Contents/Info.plist"
 mkdir -p "$APP/Contents/Resources"

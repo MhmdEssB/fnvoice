@@ -41,6 +41,11 @@ final class AppState: ObservableObject {
             TextInjector.requestAccessibilityPermission()
         }
 
+        // Load the local model at launch, so the first dictation is instant
+        if Constants.isLocal(AppSettings.shared.modelID) {
+            LocalTranscriber.shared.warmUp()
+        }
+
         // Refresh the list of available models
         Task { await ModelCatalog.shared.refresh() }
         // Sort the learned terms that do not have a domain yet
@@ -48,7 +53,7 @@ final class AppState: ObservableObject {
     }
 
     private func startRecording() {
-        guard hasAPIKey else {
+        guard hasAPIKey || Constants.isLocal(AppSettings.shared.modelID) else {
             lastError = tr("Add your OpenRouter key in Settings", "Configure ta clé OpenRouter dans les préférences")
             SoundService.shared.playErrorSound()
             return

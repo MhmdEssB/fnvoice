@@ -8,6 +8,7 @@ struct TranscriptionModel: Codable, Identifiable, Hashable {
     let pricePerHour: Double?
 
     var priceLabel: String {
+        if Constants.isLocal(id) { return tr("Free", "Gratuit") }
         guard let price = pricePerHour else { return tr("Pay per use", "Facturé à l'usage") }
         return tr(String(format: "$%.2f / hour", price), String(format: "%.2f $ / heure", price))
     }
@@ -45,7 +46,19 @@ final class ModelCatalog: ObservableObject {
 
     /// True / false when the zero-data-retention compatibility is known, nil otherwise.
     func isZDRCompatible(_ id: String) -> Bool? {
-        zdrModelIDs.isEmpty ? nil : zdrModelIDs.contains(id)
+        if Constants.isLocal(id) { return true }
+        return zdrModelIDs.isEmpty ? nil : zdrModelIDs.contains(id)
+    }
+
+    /// The model that runs on this Mac: nothing is sent, so it is not in OpenRouter's list.
+    static var localModel: TranscriptionModel {
+        TranscriptionModel(
+            id: Constants.localModelID,
+            name: Constants.localModelName,
+            summary: tr("NVIDIA Parakeet TDT 0.6B v3 on the Neural Engine. 25 European languages, including English and French.",
+                        "Parakeet TDT 0.6B v3 de NVIDIA, sur le Neural Engine. 25 langues européennes, dont le français et l'anglais."),
+            pricePerHour: 0
+        )
     }
 
     /// Compatible models first, then the others (unusable while zero data retention is enforced).
@@ -73,7 +86,8 @@ final class ModelCatalog: ObservableObject {
     }
 
     func model(for id: String) -> TranscriptionModel? {
-        models.first { $0.id == id }
+        if Constants.isLocal(id) { return Self.localModel }
+        return models.first { $0.id == id }
     }
 
     func refresh() async {

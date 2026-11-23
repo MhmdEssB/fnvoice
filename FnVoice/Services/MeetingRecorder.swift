@@ -210,7 +210,9 @@ final class MeetingRecorder: ObservableObject {
     }
 
     private func transcribeMeeting(in dir: URL) async throws -> URL {
-        guard let apiKey = KeychainHelper.shared.getAPIKey() else {
+        // The OpenRouter key is only needed for online models, proofreading and the summary
+        let apiKey = KeychainHelper.shared.getAPIKey()
+        if apiKey == nil && !Constants.isLocal(AppSettings.shared.modelID) {
             throw TranscriptionService.TranscriptionError.noAPIKey
         }
         let mic = dir.appendingPathComponent("mic.caf")
@@ -243,7 +245,9 @@ final class MeetingRecorder: ObservableObject {
 
         // 2. Transcription, several chunks at a time
         // Chunks already transcribed are kept: "Retry" does not pay again for what succeeded
-        let cacheURL = dir.appendingPathComponent("texts.json")
+        // One cache per model: switching models before "Retry" does not mix two transcriptions
+        let modelTag = AppSettings.shared.modelID.replacingOccurrences(of: "/", with: "_")
+        let cacheURL = dir.appendingPathComponent("texts-\(modelTag).json")
         let cached = (try? JSONDecoder().decode([Int: String].self, from: Data(contentsOf: cacheURL))) ?? [:]
         var texts = cached.filter { index, _ in spoken.contains { $0.offset == index } }
         let transcriptionStep = tr("Transcription", "Transcription")
@@ -266,6 +270,7 @@ final class MeetingRecorder: ObservableObject {
             let local = VocabularyService.shared.applyReplacements(to: texts[index] ?? "")
             // The previous chunk (not reviewed yet) tells what the discussion is about
             let previous = (0..<index).reversed().lazy.compactMap { texts[$0] }.first { !$0.isEmpty } ?? ""
+            guard let apiKey else { return local }
             return await VocabularyCorrector.correct(local, context: String(previous.suffix(800)), apiKey: apiKey, strictPrivacy: strict, timeout: 60)
         } progress: { index, text in
             texts[index] = text
@@ -281,7 +286,7 @@ final class MeetingRecorder: ObservableObject {
 
         // 4. Summary (optional: a failure does not prevent having the transcription)
         var summary: String?
-        if AppSettings.shared.meetingSummary {
+        if AppSettings.shared.meetingSummary, let apiKey {
             let summaryStep = tr("Summary", "Résumé")
             phase = .processing(done: 0, total: 1, step: summaryStep)
             summary = try? await summarize(body, apiKey: apiKey, strictPrivacy: strict)

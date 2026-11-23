@@ -12,8 +12,16 @@ enum Constants {
     static let openRouterKeyCheckURL = "https://openrouter.ai/api/v1/key"
     static let openRouterKeysPage = "https://openrouter.ai/keys"
 
-    static let defaultModel = "assemblyai/universal-3-5-pro"
-    static let appVersion = "2.2"
+    /// On-device transcription (NVIDIA Parakeet TDT 0.6B v3, through FluidAudio): free, instant,
+    /// and the voice never leaves the Mac. Default model since FnVoice 2.3.
+    static let localModelID = "local/parakeet-tdt-0.6b-v3"
+    static var localModelName: String { tr("Parakeet v3 (on this Mac)", "Parakeet v3 (sur ce Mac)") }
+    /// Online model suggested when the local model is not used.
+    static let defaultCloudModel = "assemblyai/universal-3-5-pro"
+    static let defaultModel = localModelID
+    static let appVersion = "2.3"
+
+    static func isLocal(_ modelID: String) -> Bool { modelID == localModelID }
 
     /// Maximum duration (in seconds) accepted per request by some models.
     /// Beyond that, the audio is split into chunks.

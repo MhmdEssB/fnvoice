@@ -1,7 +1,7 @@
 import AVFoundation
 import Foundation
 
-/// Transcription through OpenRouter, with the model chosen in Settings.
+/// Transcription on this Mac (Parakeet v3, the default) or through OpenRouter, depending on the model chosen in Settings.
 final class TranscriptionService {
     static let shared = TranscriptionService()
     private init() {}
@@ -19,12 +19,15 @@ final class TranscriptionService {
     }
 
     func transcribe(audioURL: URL) async throws -> String {
-        guard let apiKey = KeychainHelper.shared.getAPIKey() else {
-            throw TranscriptionError.noAPIKey
-        }
-
         let (model, language, strictPrivacy) = await MainActor.run {
             (AppSettings.shared.modelID, AppSettings.shared.language, AppSettings.shared.strictPrivacy)
+        }
+        // Local model: everything happens on this Mac, whatever the length
+        if Constants.isLocal(model) {
+            return try await LocalTranscriber.shared.transcribe(audioURL)
+        }
+        guard let apiKey = KeychainHelper.shared.getAPIKey() else {
+            throw TranscriptionError.noAPIKey
         }
 
         let chunks = try await splitIfNeeded(audioURL, model: model)
@@ -51,10 +54,13 @@ final class TranscriptionService {
 
     /// Transcribes a meeting chunk that is already cut, with up to 3 attempts on a temporary error.
     func transcribeChunk(_ url: URL) async throws -> String {
-        guard let apiKey = KeychainHelper.shared.getAPIKey() else { throw TranscriptionError.noAPIKey }
         let (model, language, strictPrivacy) = await MainActor.run {
             (AppSettings.shared.modelID, AppSettings.shared.language, AppSettings.shared.strictPrivacy)
         }
+        if Constants.isLocal(model) {
+            return try await LocalTranscriber.shared.transcribe(url)
+        }
+        guard let apiKey = KeychainHelper.shared.getAPIKey() else { throw TranscriptionError.noAPIKey }
         let audio = try Data(contentsOf: url)
         var attempt = 0
         while true {
@@ -70,7 +76,7 @@ final class TranscriptionService {
     }
 
     private static func isTransient(_ error: Error) -> Bool {
-        if error is URLError { return true }
+        if let urlError = error as? URLError { return urlError.code != .cancelled }
         switch error as? TranscriptionError {
         case .rateLimited, .invalidResponse: return true
         case .httpError(let code, _): return code >= 500

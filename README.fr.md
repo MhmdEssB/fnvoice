@@ -16,7 +16,7 @@ Maintiens la touche **Fn** enfoncée, parle, relâche, et le texte apparaît là
 4. Tu relâches **Fn**
 5. Le texte transcrit est automatiquement collé là où tu étais en train d'écrire
 
-L'app passe par [OpenRouter](https://openrouter.ai) : tu choisis ton modèle de transcription parmi tous ceux proposés (AssemblyAI Universal-3.5 Pro par défaut). Elle apprend aussi ton vocabulaire au fil des dictées.
+Par défaut, FnVoice transcrit **sur ton Mac** avec le modèle Parakeet v3 de NVIDIA, qui tourne sur le Neural Engine. C'est gratuit, ça marche sans connexion et ta voix ne quitte jamais l'ordinateur. Sur un Mac M4, une dictée de 35 secondes est transcrite en 0,2 s environ, et une réunion d'une heure en une dizaine de secondes. Si tu préfères, tu peux passer à n'importe quel modèle en ligne d'[OpenRouter](https://openrouter.ai), comme AssemblyAI Universal-3.5 Pro, payé à la minute d'audio. L'app apprend aussi ton vocabulaire au fil des dictées.
 
 Ce dépôt est un fork amélioré de [Paseru/whisper](https://github.com/Paseru/whisper) (licence MIT), qui n'est plus maintenu. Le projet a été renommé pour éviter la confusion avec le modèle Whisper d'OpenAI.
 
@@ -24,8 +24,9 @@ Ce dépôt est un fork amélioré de [Paseru/whisper](https://github.com/Paseru/
 
 ### Prérequis
 
+- Un Mac à puce Apple (M1 ou plus récent)
 - macOS 14 (Sonoma) ou plus récent (macOS 14.2 ou plus récent pour enregistrer une réunion avec le son de l'ordinateur)
-- Une clé API OpenRouter ([en créer une ici](https://openrouter.ai/keys))
+- Facultatif : une clé API OpenRouter ([en créer une ici](https://openrouter.ai/keys)) pour la relecture, les résumés de réunion et les modèles en ligne
 - Pour compiler seulement : les outils en ligne de commande d'Apple
 
 ### Option 1 : télécharger l'app (la plus simple)
@@ -45,14 +46,13 @@ cd fnvoice
 bash build.sh --install
 ```
 
-(Il faut les outils en ligne de commande d'Apple : `xcode-select --install`. Xcode n'est pas nécessaire ; tu peux aussi ouvrir `FnVoice.xcodeproj` dans Xcode.)
+(Il faut les outils en ligne de commande d'Apple : `xcode-select --install`. Xcode n'est pas nécessaire. La première compilation télécharge [FluidAudio](https://github.com/FluidInference/FluidAudio) et prend quelques minutes. Le projet Xcode n'intègre pas encore le moteur local : passe par `build.sh`.)
 
 Ensuite :
 
-4. **Configure ta clé API**
-   - Clique sur l'icône FnVoice dans la barre de menu
-   - Va dans les réglages
-   - Entre ta clé API OpenRouter (commence par `sk-or-...`)
+4. **Laisse le modèle se télécharger**
+   - Au premier lancement, FnVoice télécharge une seule fois le modèle Parakeet v3 (environ 470 Mo) ; la progression s'affiche dans les réglages
+   - Facultatif : entre ta clé API OpenRouter (commence par `sk-or-...`) dans les réglages pour activer la relecture, les résumés et les modèles en ligne
 
 5. **Accorde les permissions**
    - **Microphone** : pour enregistrer ta voix
@@ -76,8 +76,11 @@ Maintenant FnVoice sera toujours prêt à t'écouter dès que tu démarres ton M
 ### Transcription instantanée
 Maintiens **Fn**, parle, relâche. Le texte apparaît. Simple.
 
+### Sur ton Mac par défaut
+Parakeet TDT 0.6B v3 (NVIDIA, via [FluidAudio](https://github.com/FluidInference/FluidAudio)) reconnaît seul 25 langues européennes, dont le français, l'anglais, l'espagnol, l'allemand et l'italien, même quand tu les mélanges. Il reste chargé en mémoire : aucune attente quand tu appuies sur Fn, quelle que soit la durée de l'enregistrement.
+
 ### Choix du modèle
-Dans les réglages, choisis le modèle de transcription. La liste et les tarifs viennent d'OpenRouter et se mettent à jour tout seuls. Tu peux aussi choisir la langue parlée.
+Dans les réglages, tu peux aussi choisir un modèle en ligne. La liste et les tarifs viennent d'OpenRouter et se mettent à jour tout seuls. Tu peux alors choisir la langue parlée. C'est utile pour les langues que Parakeet ne couvre pas (arabe, turc, chinois…).
 
 Les modèles compatibles avec la zéro rétention sont listés en premier. Les autres sont en bas de la liste, marqués « (incompatible) » : si tu en choisis un, OpenRouter refusera tes dictées (voir plus bas).
 
@@ -101,7 +104,7 @@ Le menu « Réunion » enregistre en même temps ton micro et le son de l'ordina
 L'audio est coupé en morceaux d'environ 90 secondes, à un silence, et quatre morceaux sont transcrits à la fois. Le résultat est un fichier texte dans Documents › FnVoice Meetings, avec un résumé en tête si tu l'actives dans les réglages. Si la transcription échoue, l'enregistrement est conservé et le menu propose de réessayer. Tu peux continuer à dicter pendant ce temps.
 
 ### Zéro rétention, toujours active
-La transcription, la relecture et le résumé ne passent que par des fournisseurs qui n'enregistrent ni ta voix ni ton texte. Ce réglage est toujours actif et ne se désactive pas.
+Tout ce qui passe par Internet (transcription en ligne, relecture et résumé) ne passe que par des fournisseurs qui n'enregistrent ni ta voix ni ton texte. Ce réglage est toujours actif et ne se désactive pas.
 
 ### Historique (24h)
 L'app garde un historique de tes transcriptions des dernières **24 heures**. Pratique pour retrouver un truc que t'as dicté plus tôt.
@@ -127,7 +130,7 @@ L'app a besoin de ces permissions pour fonctionner :
 
 ## Clé API OpenRouter
 
-Tu as besoin d'une clé API OpenRouter pour utiliser FnVoice :
+La clé OpenRouter est facultative : elle sert à la relecture par ton vocabulaire, aux résumés de réunion et aux modèles en ligne. Pour en obtenir une :
 
 1. Va sur [openrouter.ai/keys](https://openrouter.ai/keys)
 2. Crée un compte ou connecte-toi
@@ -135,7 +138,7 @@ Tu as besoin d'une clé API OpenRouter pour utiliser FnVoice :
 4. Copie la clé (elle commence par `sk-or-...`)
 5. Colle-la dans les réglages de FnVoice
 
-**Note** : L'utilisation est payante, mais la transcription coûte très peu (0,45 $ par heure d'audio pour Universal-3.5 Pro, et environ 0,0003 $ par dictée pour la relecture). Le tarif de chaque modèle est affiché dans les réglages.
+**Note** : la transcription sur ton Mac est gratuite. Le reste est payant mais coûte très peu (0,45 $ par heure d'audio pour Universal-3.5 Pro, et environ 0,0003 $ par dictée pour la relecture). Le tarif de chaque modèle est affiché dans les réglages.
 
 Ta clé API est stockée de façon sécurisée dans le Keychain de macOS (le même endroit où sont stockés tes mots de passe).
 
@@ -143,19 +146,19 @@ Ta clé API est stockée de façon sécurisée dans le Keychain de macOS (le mê
 
 1. Quand tu appuies sur **Fn**, l'app commence à enregistrer ton micro
 2. L'audio est enregistré en format WAV (16kHz, mono)
-3. Quand tu relâches **Fn**, l'audio est envoyé à OpenRouter, qui le transmet au modèle choisi
-4. Le texte transcrit est relu avec ton vocabulaire, puis revient en quelques secondes
+3. Quand tu relâches **Fn**, l'audio est transcrit sur ton Mac par Parakeet (ou envoyé à OpenRouter si tu as choisi un modèle en ligne)
+4. Si tu as une clé OpenRouter, le texte est relu avec ton vocabulaire (environ une seconde)
 5. L'app simule un Cmd+V pour coller le texte là où tu étais
 
 ## Confidentialité
 
-- **Audio** : Envoyé à OpenRouter et au fournisseur du modèle choisi, puis supprimé de ton Mac après la transcription. Pour une réunion, l'audio est supprimé dès que le fichier texte est écrit ; il n'est conservé qu'en cas d'échec, pour pouvoir réessayer
+- **Audio** : Avec le modèle par défaut, il ne quitte jamais ton Mac. Avec un modèle en ligne, il est envoyé à OpenRouter et au fournisseur du modèle choisi. Dans les deux cas, il est supprimé de ton Mac après la transcription. Pour une réunion, l'audio est supprimé dès que le fichier texte est écrit ; il n'est conservé qu'en cas d'échec, pour pouvoir réessayer
 - **Zéro rétention** : appliquée à chaque requête (transcription, relecture et résumé)
 - **Clé API** : Stockée dans le Keychain macOS (chiffré)
 - **Historique** : Stocké localement, supprimé après 24h
 - **Vocabulaire** : Stocké localement ; ses termes sont joints à la demande de relecture, pas à la demande de transcription
 - **Réunions** : Transcriptions enregistrées en fichiers texte dans Documents › FnVoice Meetings, sur ton Mac
-- **Aucune télémétrie** : L'app n'envoie aucune donnée ailleurs qu'à OpenRouter
+- **Aucune télémétrie** : En dehors du téléchargement unique du modèle (depuis Hugging Face), l'app ne contacte qu'OpenRouter, et seulement si tu as mis une clé
 
 ## Contribuer
 
@@ -163,4 +166,4 @@ Les PRs sont les bienvenues ! Si tu trouves un bug ou tu as une idée de feature
 
 ## Licence
 
-MIT. Fork de [Paseru/whisper](https://github.com/Paseru/whisper) (© 2024 Hyrak), voir [LICENSE](LICENSE).
+MIT. Fork de [Paseru/whisper](https://github.com/Paseru/whisper) (© 2024 Hyrak), voir [LICENSE](LICENSE). Le moteur local utilise [FluidAudio](https://github.com/FluidInference/FluidAudio) (Apache 2.0) et le modèle [Parakeet TDT 0.6B v3](https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3) de NVIDIA (CC BY 4.0).

@@ -5,6 +5,7 @@ struct MenuBarView: View {
     @Environment(\.openSettings) private var openSettings
     @ObservedObject private var history = HistoryService.shared
     @ObservedObject private var settings = AppSettings.shared
+    @ObservedObject private var local = LocalTranscriber.shared
     @ObservedObject private var catalog = ModelCatalog.shared
     @ObservedObject private var meeting = MeetingRecorder.shared
 
@@ -364,7 +365,11 @@ struct MenuBarView: View {
             return .red
         } else if case .recording = meeting.phase {
             return .red
-        } else if !appState.hasAPIKey {
+        } else if Constants.isLocal(settings.modelID), case .failed = local.status {
+            return .orange
+        } else if Constants.isLocal(settings.modelID), case .downloading = local.status {
+            return .blue
+        } else if !appState.hasAPIKey && !Constants.isLocal(settings.modelID) {
             return .orange
         } else {
             return .green
@@ -378,7 +383,11 @@ struct MenuBarView: View {
             return tr("Recording...", "Enregistrement...")
         } else if case .recording = meeting.phase {
             return tr("Meeting being recorded", "Réunion en cours d'enregistrement")
-        } else if !appState.hasAPIKey {
+        } else if Constants.isLocal(settings.modelID), case .downloading(let fraction) = local.status {
+            return tr("Downloading the local model: \(Int(fraction * 100))%", "Téléchargement du modèle local : \(Int(fraction * 100)) %")
+        } else if Constants.isLocal(settings.modelID), case .failed = local.status {
+            return tr("Local model unavailable (see Settings)", "Modèle local indisponible (voir Préférences)")
+        } else if !appState.hasAPIKey && !Constants.isLocal(settings.modelID) {
             return tr("OpenRouter key not set", "Clé OpenRouter non configurée")
         } else {
             return tr("Ready", "Prêt")

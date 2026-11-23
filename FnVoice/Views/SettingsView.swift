@@ -5,6 +5,7 @@ struct SettingsView: View {
     @ObservedObject private var settings = AppSettings.shared
     @ObservedObject private var catalog = ModelCatalog.shared
     @ObservedObject private var vocabulary = VocabularyService.shared
+    @ObservedObject private var local = LocalTranscriber.shared
 
     @State private var apiKeyInput: String = ""
     @State private var isValidating: Bool = false
@@ -79,7 +80,10 @@ struct SettingsView: View {
                                     if let missing = missingSelection {
                                         Text(missing.name).tag(missing.id)
                                     }
-                                    Section(tr("Zero-retention compatible", "Compatibles zéro rétention")) {
+                                    Section(tr("On this Mac (nothing is sent)", "Sur ce Mac (rien n'est envoyé)")) {
+                                        Text(ModelCatalog.localModel.name).tag(ModelCatalog.localModel.id)
+                                    }
+                                    Section(tr("Online, zero-retention compatible", "En ligne, compatibles zéro rétention")) {
                                         ForEach(catalog.compatibleModels) { model in
                                             Text(model.name).tag(model.id)
                                         }
@@ -94,6 +98,9 @@ struct SettingsView: View {
                                 }
                                 .labelsHidden()
                                 .frame(maxWidth: .infinity)
+                                .onChange(of: settings.modelID) { _, newValue in
+                                    if Constants.isLocal(newValue) { local.warmUp() }
+                                }
 
                                 Button {
                                     Task { await catalog.refresh() }
@@ -167,6 +174,15 @@ struct SettingsView: View {
                                 }
                                 .labelsHidden()
                                 .frame(width: 190)
+                                .disabled(Constants.isLocal(settings.modelID))
+                            }
+
+                            if Constants.isLocal(settings.modelID) {
+                                Text(tr("Parakeet detects the spoken language on its own among 25 European languages (English, French, Spanish, German, Italian…), even when you mix them. Other languages need an online model.",
+                                        "Parakeet reconnaît seul la langue parlée parmi 25 langues européennes (français, anglais, espagnol, allemand, italien…), même quand tu mélanges. Les autres langues demandent un modèle en ligne."))
+                                    .font(.system(size: 10))
+                                    .foregroundColor(.secondary)
+                                    .fixedSize(horizontal: false, vertical: true)
                             }
 
                             HStack(alignment: .top, spacing: 8) {
@@ -176,7 +192,7 @@ struct SettingsView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(tr("Zero data retention: always on", "Zéro rétention des données : toujours active"))
                                         .font(.system(size: 12))
-                                    Text(tr("Transcription and proofreading only use providers that keep neither your voice nor your text. Models that cannot meet this are listed as incompatible.", "La transcription et la relecture ne passent que par des fournisseurs qui n'enregistrent ni ta voix ni ton texte. Les modèles qui ne peuvent pas s'y plier sont marqués comme incompatibles."))
+                                    Text(tr("Applies to everything sent over the Internet: online transcription and proofreading only use providers that keep neither your voice nor your text. Models that cannot meet this are listed as incompatible.", "Pour tout ce qui passe par Internet : la transcription en ligne et la relecture ne passent que par des fournisseurs qui n'enregistrent ni ta voix ni ton texte. Les modèles qui ne peuvent pas s'y plier sont marqués comme incompatibles."))
                                         .font(.system(size: 10))
                                         .foregroundColor(.secondary)
                                         .fixedSize(horizontal: false, vertical: true)
@@ -378,7 +394,7 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             Divider().opacity(0.5)
             HStack {
-                Text(tr("FnVoice transcribes with the model of your choice through OpenRouter.", "FnVoice transcrit avec le modèle de ton choix via OpenRouter."))
+                Text(tr("FnVoice transcribes on this Mac (Parakeet v3) or online through OpenRouter, your choice.", "FnVoice transcrit sur ce Mac (Parakeet v3) ou en ligne via OpenRouter, au choix."))
                     .font(.system(size: 10))
                     .foregroundColor(.secondary.opacity(0.7))
                 
@@ -492,6 +508,61 @@ struct SettingsView: View {
     /// Says clearly whether the chosen model will work with zero data retention.
     @ViewBuilder
     private var zdrBadge: some View {
+        if Constants.isLocal(settings.modelID) {
+            localStatusBadge
+        } else {
+            onlineZDRBadge
+        }
+    }
+
+    /// Local model state: download, loading, ready or error.
+    @ViewBuilder
+    private var localStatusBadge: some View {
+        switch local.status {
+        case .ready:
+            Label(tr("Ready, on this Mac: your voice never leaves the computer", "Prêt, sur ce Mac : ta voix ne quitte jamais l'ordinateur"), systemImage: "lock.shield.fill")
+                .font(.system(size: 11))
+                .foregroundColor(.green)
+        case .loading:
+            HStack(spacing: 6) {
+                ProgressView().controlSize(.small).scaleEffect(0.6).frame(width: 14, height: 14)
+                Text(tr("Loading the model on the Neural Engine…", "Chargement du modèle sur le Neural Engine…"))
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+            }
+        case .downloading(let fraction):
+            VStack(alignment: .leading, spacing: 4) {
+                Text(tr("One-time model download (\(LocalTranscriber.downloadSizeLabel)): \(Int(fraction * 100))%",
+                        "Téléchargement unique du modèle (\(LocalTranscriber.downloadSizeLabel)) : \(Int(fraction * 100)) %"))
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                ProgressView(value: fraction)
+                    .controlSize(.small)
+            }
+        case .notDownloaded:
+            HStack(spacing: 8) {
+                Label(tr("Model to download once (\(LocalTranscriber.downloadSizeLabel))", "Modèle à télécharger une seule fois (\(LocalTranscriber.downloadSizeLabel))"), systemImage: "arrow.down.circle")
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                Spacer()
+                Button(tr("Download", "Télécharger")) { local.warmUp() }
+                    .buttonStyle(RefinedButtonStyle(isPrimary: true))
+            }
+        case .failed(let reason):
+            HStack(alignment: .top, spacing: 8) {
+                Label(tr("Local model unavailable: \(reason)", "Modèle local indisponible : \(reason)"), systemImage: "exclamationmark.triangle.fill")
+                    .font(.system(size: 11))
+                    .foregroundColor(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+                Spacer()
+                Button(tr("Retry", "Réessayer")) { local.warmUp() }
+                    .buttonStyle(RefinedButtonStyle(isPrimary: false))
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var onlineZDRBadge: some View {
         switch catalog.isZDRCompatible(settings.modelID) {
         case .some(true):
             Label(tr("Zero-retention compatible: your voice is not stored anywhere", "Compatible zéro rétention : ta voix n'est conservée nulle part"), systemImage: "lock.shield.fill")

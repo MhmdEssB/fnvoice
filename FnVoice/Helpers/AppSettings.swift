@@ -59,6 +59,11 @@ final class AppSettings: ObservableObject {
     }
 
     private init() {
+        // One-time switch to the local model (2.3); after that, the user's choice is kept.
+        if !defaults.bool(forKey: "migratedToLocalModel") {
+            defaults.set(Constants.localModelID, forKey: "modelID")
+            defaults.set(true, forKey: "migratedToLocalModel")
+        }
         modelID = defaults.string(forKey: "modelID") ?? Constants.defaultModel
         language = defaults.string(forKey: "language") ?? AppSettings.systemLanguage
         autoLearn = defaults.object(forKey: "autoLearn") as? Bool ?? true
